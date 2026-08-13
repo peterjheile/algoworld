@@ -1,0 +1,23 @@
+# TYPE + HEADER
+# Example: FEAT: add client project dashboard
+
+
+# DESCRIPTION
+# Explain why the change was needed, not how it was implemented.
+# Wrap longer descriptions at approximately 72 characters.
+
+
+
+# [ FEAT BUG CHG REFAC PERF DATA TOOL COPY DOC SPEC WIP ]
+#
+# FEAT  New user-facing functionality
+# BUG   Fix incorrect behavior
+# CHG   Change existing behavior, configuration, or dependencies
+# REFAC Restructure code without changing behavior
+# PERF  Improve performance
+# DATA  Change database schemas, migrations, seeds, or stored data
+# TOOL  Change tooling, builds, infrastructure, or development setup
+# COPY  Change user-facing content
+# DOC   Change documentation
+# SPEC  Add or update tests
+# WIP   Incomplete work that should not be released
