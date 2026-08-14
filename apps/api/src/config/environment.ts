@@ -16,6 +16,7 @@ const environmentSchema = z.object({
         .map((origin) => origin.trim())
         .filter(Boolean),
     ),
+  DATABASE_URL: z.string().trim().min(1),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
