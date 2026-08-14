@@ -15,6 +15,16 @@ enum ClientStatus {
   ARCHIVED
 }
 
+enum PlatformRole {
+  USER
+  ADMIN
+}
+
+enum ClientRole {
+  OWNER
+  MANAGER
+  MEMBER
+}
 
 
 model Client {
@@ -24,7 +34,36 @@ model Client {
   status    ClientStatus @default(ACTIVE)
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
+  memberships ClientMembership[]
 
   @@map("clients")
 }
 
+model User {
+  id           String       @id @default(cuid())
+  clerkUserId  String       @unique @map("clerk_user_id")
+  email        String       @unique
+  firstName    String?      @map("first_name")
+  lastName     String?      @map("last_name")
+  platformRole PlatformRole @default(USER) @map("platform_role")
+  isActive     Boolean      @default(true) @map("is_active")
+  memberships ClientMembership[]
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model ClientMembership {
+  clientId String     @map("client_id")
+  userId   String     @map("user_id")
+  role     ClientRole @default(MEMBER)
+  client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@id([clientId, userId])
+  @@index([userId])
+  @@map("client_memberships")
+}
