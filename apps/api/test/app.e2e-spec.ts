@@ -38,4 +38,9 @@ describe('API health (e2e)', () => {
     const server = app.getHttpServer() as Server;
     await request(server).get('/api/v1/clients').expect(401);
   });
+
+  it('rejects unauthenticated access to client details', async () => {
+    const server = app.getHttpServer() as Server;
+    await request(server).get('/api/v1/clients/client-1').expect(401);
+  });
 });

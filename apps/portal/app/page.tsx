@@ -1,5 +1,6 @@
 import { UserButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
+import Link from 'next/link';
 
 import { getAccessibleClients } from '@/lib/server/clients';
 
@@ -45,11 +46,18 @@ export default async function PortalHomePage() {
               {clients.map((client) => (
                 <li
                   key={client.id}
-                  className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm"
+                  className="rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:border-zinc-300 hover:shadow-md"
                 >
-                  <h3 className="font-semibold">
-                    {client.name}
-                  </h3>
+                  <Link
+                    href={`/clients/${client.id}`}
+                    className="block p-5"
+                  >
+                    <h3 className="font-semibold">{client.name}</h3>
+
+                    <span className="mt-4 inline-block text-sm font-medium text-zinc-600">
+                      Open dashboard →
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

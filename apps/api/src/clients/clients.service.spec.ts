@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import {
@@ -22,12 +22,15 @@ describe('ClientsService', () => {
 
   const findMany = jest.fn<Promise<Client[]>, [args: unknown]>();
 
+  const findFirst = jest.fn<Promise<Client | null>, [args: unknown]>();
+
   const database = {
     user: {
       findUnique,
     },
     client: {
       findMany,
+      findFirst,
     },
   } as unknown as DatabaseClient;
 
@@ -132,5 +135,74 @@ describe('ClientsService', () => {
     ).rejects.toThrow(ForbiddenException);
 
     expect(findMany).not.toHaveBeenCalled();
+  });
+
+  it('returns an assigned client to a platform user', async () => {
+    const client = {
+      id: 'client-1',
+      name: 'Example Client',
+    } as unknown as Client;
+
+    findUnique.mockResolvedValue({
+      id: 'user-1',
+      isActive: true,
+      platformRole: PlatformRole.USER,
+    });
+
+    findFirst.mockResolvedValue(client);
+
+    await expect(
+      service.findOneAccessibleTo('clerk-user-1', 'client-1'),
+    ).resolves.toEqual(client);
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'client-1',
+        memberships: {
+          some: {
+            userId: 'user-1',
+          },
+        },
+      },
+    });
+  });
+
+  it('returns any client to a platform administrator', async () => {
+    const client = {
+      id: 'client-1',
+      name: 'Example Client',
+    } as unknown as Client;
+
+    findUnique.mockResolvedValue({
+      id: 'admin-1',
+      isActive: true,
+      platformRole: PlatformRole.ADMIN,
+    });
+
+    findFirst.mockResolvedValue(client);
+
+    await expect(
+      service.findOneAccessibleTo('clerk-admin-1', 'client-1'),
+    ).resolves.toEqual(client);
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'client-1',
+      },
+    });
+  });
+
+  it('hides inaccessible or missing clients behind a 404', async () => {
+    findUnique.mockResolvedValue({
+      id: 'user-1',
+      isActive: true,
+      platformRole: PlatformRole.USER,
+    });
+
+    findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.findOneAccessibleTo('clerk-user-1', 'inaccessible-client'),
+    ).rejects.toThrow(NotFoundException);
   });
 });
