@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { ClientsModule } from './clients/clients.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 import { ConfigModule } from '@nestjs/config';
 
@@ -16,6 +17,7 @@ import { validateEnvironment } from './config/environment';
     HealthModule,
     DatabaseModule,
     ClientsModule,
+    WebhooksModule,
   ],
 })
 export class AppModule {}

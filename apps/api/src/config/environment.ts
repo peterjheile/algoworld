@@ -26,6 +26,8 @@ const environmentSchema = z.object({
       .map((party) => party.trim())
       .filter(Boolean),
   ),
+
+  CLERK_WEBHOOK_SIGNING_SECRET: z.string().trim().min(1),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
