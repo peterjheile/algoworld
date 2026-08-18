@@ -3,6 +3,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import type { Client } from '@algoworld/database';
 
 import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
+import { CurrentClerkUserId } from '../auth/current-clerk-user-id.decorator';
 import { ClientsService } from './clients.service';
 
 @UseGuards(ClerkAuthGuard)
@@ -11,7 +12,7 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @Get()
-  async findAll(): Promise<Client[]> {
-    return this.clientsService.findAll();
+  async findAll(@CurrentClerkUserId() clerkUserId: string): Promise<Client[]> {
+    return this.clientsService.findAccessibleTo(clerkUserId);
   }
 }

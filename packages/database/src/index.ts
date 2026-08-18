@@ -1,10 +1,14 @@
 export {
-    createDatabaseClient,
-    type DatabaseClient,
-} from './client.js'
+  createDatabaseClient,
+  type DatabaseClient,
+} from './client.js';
 
 export {
-    ClientStatus,
-    Prisma,
-    type Client,
-} from './generated/prisma/client.js'
+  ClientRole,
+  ClientStatus,
+  PlatformRole,
+  Prisma,
+  type Client,
+  type ClientMembership,
+  type User,
+} from './generated/prisma/client.js';

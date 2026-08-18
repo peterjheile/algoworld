@@ -1,6 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 
-import type { Client, DatabaseClient } from '@algoworld/database';
+import {
+  PlatformRole,
+  Prisma,
+  type Client,
+  type DatabaseClient,
+} from '@algoworld/database';
 
 import { DATABASE_CLIENT } from '../database/database.constants';
 
@@ -11,8 +16,37 @@ export class ClientsService {
     private readonly database: DatabaseClient,
   ) {}
 
-  async findAll(): Promise<Client[]> {
+  async findAccessibleTo(clerkUserId: string): Promise<Client[]> {
+    const user = await this.database.user.findUnique({
+      where: {
+        clerkUserId,
+      },
+      select: {
+        id: true,
+        isActive: true,
+        platformRole: true,
+      },
+    });
+
+    if (!user?.isActive) {
+      throw new ForbiddenException(
+        'No active platform account is associated with this user.',
+      );
+    }
+
+    const where: Prisma.ClientWhereInput =
+      user.platformRole === PlatformRole.ADMIN
+        ? {}
+        : {
+            memberships: {
+              some: {
+                userId: user.id,
+              },
+            },
+          };
+
     return this.database.client.findMany({
+      where,
       orderBy: {
         name: 'asc',
       },
