@@ -1,0 +1,42 @@
+import { Inject, Injectable } from '@nestjs/common';
+
+import type { DatabaseClient } from '@algoworld/database';
+
+import { ClientsService } from '../clients/clients.service';
+import { DATABASE_CLIENT } from '../database/database.constants';
+import type { ProjectSummary } from './projects.types';
+
+@Injectable()
+export class ProjectsService {
+  constructor(
+    @Inject(DATABASE_CLIENT)
+    private readonly database: DatabaseClient,
+    private readonly clientsService: ClientsService,
+  ) {}
+
+  async findVisibleForClient(
+    clerkUserId: string,
+    clientId: string,
+  ): Promise<ProjectSummary[]> {
+    await this.clientsService.findOneAccessibleTo(clerkUserId, clientId);
+
+    return this.database.project.findMany({
+      where: {
+        clientId,
+        isVisibleToClient: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        startDate: true,
+        targetEndDate: true,
+        completedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+}

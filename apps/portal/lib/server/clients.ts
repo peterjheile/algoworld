@@ -9,6 +9,49 @@ const clientsResponseSchema = z.array(clientSummarySchema);
 
 export type ClientSummary = z.infer<typeof clientSummarySchema>;
 
+
+
+
+
+
+const projectStatusSchema = z.enum([
+  'PLANNING',
+  'IN_PROGRESS',
+  'WAITING_ON_CLIENT',
+  'ON_HOLD',
+  'COMPLETED',
+  'CANCELLED',
+]);
+
+const projectSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  status: projectStatusSchema,
+  startDate: z.string().datetime().nullable(),
+  targetEndDate: z.string().datetime().nullable(),
+  completedAt: z.string().datetime().nullable(),
+});
+
+const projectsResponseSchema = z.array(projectSummarySchema);
+
+export type ProjectStatus = z.infer<
+  typeof projectStatusSchema
+>;
+
+export type ProjectSummary = z.infer<
+  typeof projectSummarySchema
+>;
+
+
+
+
+
+
+
+
+
+
 function getApiBaseUrl(): string {
   const apiBaseUrl = process.env.API_BASE_URL;
 
@@ -73,3 +116,40 @@ export async function getAccessibleClient(
 
   return clientSummarySchema.parse(payload);
 }
+
+
+
+
+
+
+
+
+
+
+export async function getVisibleProjects(
+  token: string,
+  clientId: string,
+): Promise<ProjectSummary[]> {
+  const response = await requestClients(
+    `/api/v1/clients/${encodeURIComponent(clientId)}/projects`,
+    token,
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to load projects: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const payload: unknown = await response.json();
+
+  return projectsResponseSchema.parse(payload);
+}
+
+
+
+
+
+
+
+

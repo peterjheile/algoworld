@@ -26,6 +26,15 @@ enum ClientRole {
   MEMBER
 }
 
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  WAITING_ON_CLIENT
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
 
 model Client {
   id        String       @id @default(cuid())
@@ -35,6 +44,7 @@ model Client {
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
   memberships ClientMembership[]
+  projects Project[]
 
   @@map("clients")
 }
@@ -66,4 +76,23 @@ model ClientMembership {
   @@id([clientId, userId])
   @@index([userId])
   @@map("client_memberships")
+}
+
+model Project {
+  id                String        @id @default(cuid())
+  clientId          String        @map("client_id")
+  name              String
+  description       String?
+  status            ProjectStatus @default(PLANNING)
+  startDate         DateTime?     @map("start_date")
+  targetEndDate     DateTime?     @map("target_end_date")
+  completedAt       DateTime?     @map("completed_at")
+  isVisibleToClient Boolean       @default(true) @map("is_visible_to_client")
+  client            Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  @@index([clientId, isVisibleToClient])
+  @@index([clientId, status])
+  @@map("projects")
 }
