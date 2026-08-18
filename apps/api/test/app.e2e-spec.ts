@@ -43,4 +43,11 @@ describe('API health (e2e)', () => {
     const server = app.getHttpServer() as Server;
     await request(server).get('/api/v1/clients/client-1').expect(401);
   });
+
+  it('rejects unauthenticated access to project timelines', async () => {
+    const server = app.getHttpServer() as Server;
+    await request(server)
+      .get('/api/v1/clients/client-1/projects/project-1')
+      .expect(401);
+  });
 });

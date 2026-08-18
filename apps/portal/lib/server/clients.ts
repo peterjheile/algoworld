@@ -50,6 +50,47 @@ export type ProjectSummary = z.infer<
 
 
 
+const milestoneStatusSchema = z.enum([
+  'PENDING',
+  'IN_PROGRESS',
+  'WAITING_ON_CLIENT',
+  'COMPLETED',
+  'SKIPPED',
+]);
+
+const milestoneSummarySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  status: milestoneStatusSchema,
+  targetDate: z.string().datetime().nullable(),
+  completedAt: z.string().datetime().nullable(),
+  displayOrder: z.number().int(),
+});
+
+const projectDetailSchema = projectSummarySchema.extend({
+  milestones: z.array(milestoneSummarySchema),
+});
+
+export type MilestoneStatus = z.infer<
+  typeof milestoneStatusSchema
+>;
+
+export type MilestoneSummary = z.infer<
+  typeof milestoneSummarySchema
+>;
+
+export type ProjectDetail = z.infer<
+  typeof projectDetailSchema
+>;
+
+
+
+
+
+
+
+
 
 
 function getApiBaseUrl(): string {
@@ -146,6 +187,38 @@ export async function getVisibleProjects(
   return projectsResponseSchema.parse(payload);
 }
 
+
+
+
+
+
+
+
+
+export async function getVisibleProject(
+  token: string,
+  clientId: string,
+  projectId: string,
+): Promise<ProjectDetail | null> {
+  const response = await requestClients(
+    `/api/v1/clients/${encodeURIComponent(clientId)}/projects/${encodeURIComponent(projectId)}`,
+    token,
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to load project: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const payload: unknown = await response.json();
+
+  return projectDetailSchema.parse(payload);
+}
 
 
 

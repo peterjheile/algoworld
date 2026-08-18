@@ -6,8 +6,14 @@ import { notFound } from 'next/navigation';
 import {
   getAccessibleClient,
   getVisibleProjects,
-  type ProjectStatus,
+  // type ProjectStatus,
 } from '@/lib/server/clients';
+
+import {
+  formatDate,
+  projectStatusLabels,
+  projectStatusStyles,
+} from '@/lib/project-presentation';
 
 interface ClientPageProps {
   params: Promise<{
@@ -15,36 +21,6 @@ interface ClientPageProps {
   }>;
 }
 
-const projectStatusLabels: Record<ProjectStatus, string> = {
-  PLANNING: 'Planning',
-  IN_PROGRESS: 'In progress',
-  WAITING_ON_CLIENT: 'Waiting on client',
-  ON_HOLD: 'On hold',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-};
-
-const projectStatusStyles: Record<ProjectStatus, string> = {
-  PLANNING: 'bg-blue-50 text-blue-700',
-  IN_PROGRESS: 'bg-emerald-50 text-emerald-700',
-  WAITING_ON_CLIENT: 'bg-amber-50 text-amber-700',
-  ON_HOLD: 'bg-orange-50 text-orange-700',
-  COMPLETED: 'bg-zinc-100 text-zinc-700',
-  CANCELLED: 'bg-red-50 text-red-700',
-};
-
-function formatDate(value: string | null): string {
-  if (!value) {
-    return 'Not scheduled';
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(value));
-}
 
 export default async function ClientPage({
   params,
@@ -114,8 +90,12 @@ export default async function ClientPage({
           ) : (
             <div className="mt-8 grid gap-4 md:grid-cols-2">
               {projects.map((project) => (
-                <article
+                <Link
+                  href={`/clients/${clientId}/projects/${project.id}`}
+                  className="block"
                   key={project.id}
+                >
+                <article
                   className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -154,6 +134,11 @@ export default async function ClientPage({
                     </div>
                   </dl>
                 </article>
+
+                  <span className="mt-5 inline-block text-sm font-medium text-zinc-600">
+                    View project timeline →
+                  </span>
+                </Link>
               ))}
             </div>
           )}

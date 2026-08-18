@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import type { DatabaseClient } from '@algoworld/database';
 
 import { ClientsService } from '../clients/clients.service';
 import { DATABASE_CLIENT } from '../database/database.constants';
-import type { ProjectSummary } from './projects.types';
+import type { ProjectDetail, ProjectSummary } from './projects.types';
 
 @Injectable()
 export class ProjectsService {
@@ -38,5 +38,58 @@ export class ProjectsService {
         createdAt: 'desc',
       },
     });
+  }
+
+  async findOneVisibleForClient(
+    clerkUserId: string,
+    clientId: string,
+    projectId: string,
+  ): Promise<ProjectDetail> {
+    await this.clientsService.findOneAccessibleTo(clerkUserId, clientId);
+
+    const project = await this.database.project.findFirst({
+      where: {
+        id: projectId,
+        clientId,
+        isVisibleToClient: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        status: true,
+        startDate: true,
+        targetEndDate: true,
+        completedAt: true,
+        milestones: {
+          where: {
+            isVisibleToClient: true,
+          },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            targetDate: true,
+            completedAt: true,
+            displayOrder: true,
+          },
+          orderBy: [
+            {
+              displayOrder: 'asc',
+            },
+            {
+              createdAt: 'asc',
+            },
+          ],
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    return project;
   }
 }

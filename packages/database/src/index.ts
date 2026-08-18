@@ -9,6 +9,8 @@ export {
   PlatformRole,
   Prisma,
   ProjectStatus,
+  MilestoneStatus,
+  type ProjectMilestone,
   type Client,
   type ClientMembership,
   type Project,

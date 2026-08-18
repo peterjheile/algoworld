@@ -35,43 +35,50 @@ enum ProjectStatus {
   CANCELLED
 }
 
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  WAITING_ON_CLIENT
+  COMPLETED
+  SKIPPED
+}
 
 model Client {
-  id        String       @id @default(cuid())
-  name      String
-  slug      String       @unique
-  status    ClientStatus @default(ACTIVE)
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  id          String             @id @default(cuid())
+  name        String
+  slug        String             @unique
+  status      ClientStatus       @default(ACTIVE)
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
   memberships ClientMembership[]
-  projects Project[]
+  projects    Project[]
 
   @@map("clients")
 }
 
 model User {
-  id           String       @id @default(cuid())
-  clerkUserId  String       @unique @map("clerk_user_id")
-  email        String       @unique
-  firstName    String?      @map("first_name")
-  lastName     String?      @map("last_name")
-  platformRole PlatformRole @default(USER) @map("platform_role")
-  isActive     Boolean      @default(true) @map("is_active")
-  memberships ClientMembership[]
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
+  id           String             @id @default(cuid())
+  clerkUserId  String             @unique @map("clerk_user_id")
+  email        String             @unique
+  firstName    String?            @map("first_name")
+  lastName     String?            @map("last_name")
+  platformRole PlatformRole       @default(USER) @map("platform_role")
+  isActive     Boolean            @default(true) @map("is_active")
+  memberships  ClientMembership[]
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
 model ClientMembership {
-  clientId String     @map("client_id")
-  userId   String     @map("user_id")
-  role     ClientRole @default(MEMBER)
-  client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  clientId  String     @map("client_id")
+  userId    String     @map("user_id")
+  role      ClientRole @default(MEMBER)
+  client    Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
 
   @@id([clientId, userId])
   @@index([userId])
@@ -79,20 +86,40 @@ model ClientMembership {
 }
 
 model Project {
-  id                String        @id @default(cuid())
-  clientId          String        @map("client_id")
+  id                String             @id @default(cuid())
+  clientId          String             @map("client_id")
   name              String
   description       String?
-  status            ProjectStatus @default(PLANNING)
-  startDate         DateTime?     @map("start_date")
-  targetEndDate     DateTime?     @map("target_end_date")
-  completedAt       DateTime?     @map("completed_at")
-  isVisibleToClient Boolean       @default(true) @map("is_visible_to_client")
-  client            Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
+  status            ProjectStatus      @default(PLANNING)
+  startDate         DateTime?          @map("start_date")
+  targetEndDate     DateTime?          @map("target_end_date")
+  completedAt       DateTime?          @map("completed_at")
+  isVisibleToClient Boolean            @default(true) @map("is_visible_to_client")
+  client            Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  milestones        ProjectMilestone[]
 
   @@index([clientId, isVisibleToClient])
   @@index([clientId, status])
   @@map("projects")
+}
+
+model ProjectMilestone {
+  id                String          @id @default(cuid())
+  projectId         String          @map("project_id")
+  title             String
+  description       String?
+  status            MilestoneStatus @default(PENDING)
+  targetDate        DateTime?       @map("target_date")
+  completedAt       DateTime?       @map("completed_at")
+  displayOrder      Int             @default(0) @map("display_order")
+  isVisibleToClient Boolean         @default(true) @map("is_visible_to_client")
+  project           Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@index([projectId, isVisibleToClient, displayOrder])
+  @@index([projectId, status])
+  @@map("project_milestones")
 }
