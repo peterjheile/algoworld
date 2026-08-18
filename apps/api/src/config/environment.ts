@@ -17,6 +17,15 @@ const environmentSchema = z.object({
         .filter(Boolean),
     ),
   DATABASE_URL: z.string().trim().min(1),
+
+  CLERK_PUBLISHABLE_KEY: z.string().trim().min(1),
+  CLERK_SECRET_KEY: z.string().trim().min(1),
+  CLERK_AUTHORIZED_PARTIES: z.string().transform((value) =>
+    value
+      .split(',')
+      .map((party) => party.trim())
+      .filter(Boolean),
+  ),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;

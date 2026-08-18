@@ -1,5 +1,6 @@
 import { type INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { clerkMiddleware } from '@clerk/express';
 
 import type { Environment } from './config/environment';
 
@@ -20,4 +21,12 @@ export function configureApplication(app: INestApplication): void {
   });
 
   app.enableShutdownHooks();
+
+  app.use(
+    clerkMiddleware({
+      authorizedParties: config.getOrThrow<string[]>(
+        'CLERK_AUTHORIZED_PARTIES',
+      ),
+    }),
+  );
 }
