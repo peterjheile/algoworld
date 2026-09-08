@@ -57,16 +57,17 @@ model Client {
 }
 
 model User {
-  id           String             @id @default(cuid())
-  clerkUserId  String             @unique @map("clerk_user_id")
-  email        String             @unique
-  firstName    String?            @map("first_name")
-  lastName     String?            @map("last_name")
-  platformRole PlatformRole       @default(USER) @map("platform_role")
-  isActive     Boolean            @default(true) @map("is_active")
-  memberships  ClientMembership[]
-  createdAt    DateTime           @default(now()) @map("created_at")
-  updatedAt    DateTime           @updatedAt @map("updated_at")
+  id             String             @id @default(cuid())
+  clerkUserId    String             @unique @map("clerk_user_id")
+  email          String             @unique
+  firstName      String?            @map("first_name")
+  lastName       String?            @map("last_name")
+  platformRole   PlatformRole       @default(USER) @map("platform_role")
+  isActive       Boolean            @default(true) @map("is_active")
+  memberships    ClientMembership[]
+  projectUpdates ProjectUpdate[]
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -99,6 +100,7 @@ model Project {
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   milestones        ProjectMilestone[]
+  updates           ProjectUpdate[]
 
   @@index([clientId, isVisibleToClient])
   @@index([clientId, status])
@@ -122,4 +124,22 @@ model ProjectMilestone {
   @@index([projectId, isVisibleToClient, displayOrder])
   @@index([projectId, status])
   @@map("project_milestones")
+}
+
+model ProjectUpdate {
+  id           String    @id @default(cuid())
+  projectId    String    @map("project_id")
+  authorUserId String?   @map("author_user_id")
+  title        String
+  content      String
+  publishedAt  DateTime? @map("published_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author  User?   @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, publishedAt, id])
+  @@index([authorUserId])
+  @@map("project_updates")
 }

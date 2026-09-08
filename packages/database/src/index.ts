@@ -15,4 +15,5 @@ export {
   type ClientMembership,
   type Project,
   type User,
+  type ProjectUpdate,
 } from './generated/prisma/client.js';

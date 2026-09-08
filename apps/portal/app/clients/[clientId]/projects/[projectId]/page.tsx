@@ -11,7 +11,10 @@ import {
   projectStatusLabels,
   projectStatusStyles,
 } from '@/lib/project-presentation';
-import { getVisibleProject } from '@/lib/server/clients';
+import {
+  getPublishedProjectUpdates,
+  getVisibleProject,
+} from '@/lib/server/clients';
 
 interface ProjectPageProps {
   params: Promise<{
@@ -32,11 +35,14 @@ export default async function ProjectPage({
     throw new Error('Unable to retrieve the Clerk session token.');
   }
 
-  const project = await getVisibleProject(
-    token,
-    clientId,
-    projectId,
-  );
+  const [project, updates] = await Promise.all([
+    getVisibleProject(token, clientId, projectId),
+    getPublishedProjectUpdates(token, clientId, projectId),
+  ]);
+
+  if (!project || updates === null) {
+    notFound();
+  }
 
   if (!project) {
     notFound();
@@ -172,6 +178,67 @@ export default async function ProjectPage({
                 </li>
               ))}
             </ol>
+          )}
+        </section>
+
+        <section
+          aria-labelledby="project-updates-heading"
+          className="border-t border-zinc-200 py-12"
+        >
+          <h2
+            id="project-updates-heading"
+            className="text-2xl font-semibold"
+          >
+            Project updates
+          </h2>
+
+          <p className="mt-2 text-zinc-600">
+            The latest progress, decisions, and next steps for your project.
+          </p>
+
+          {updates.length === 0 ? (
+            <div className="mt-8 rounded-xl border border-dashed border-zinc-300 bg-white p-8">
+              <h3 className="font-semibold">
+                No project updates yet
+              </h3>
+
+              <p className="mt-2 text-sm text-zinc-500">
+                Updates will appear here as your project moves forward.
+              </p>
+            </div>
+          ) : (
+            <>
+              <ol className="mt-8 space-y-4">
+                {updates.map((update) => (
+                  <li key={update.id} id={`update-${update.id}`} className="scroll-mt-6">
+                    <article className="min-w-0 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
+                      <header className="flex flex-wrap items-start justify-between gap-3">
+                        <h3 className="min-w-0 break-words text-lg font-semibold">
+                          {update.title}
+                        </h3>
+
+                        <time
+                          dateTime={update.publishedAt}
+                          className="shrink-0 text-sm text-zinc-500"
+                        >
+                          {formatDate(update.publishedAt)}
+                        </time>
+                      </header>
+
+                      <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-zinc-600">
+                        {update.content}
+                      </p>
+                    </article>
+                  </li>
+                ))}
+              </ol>
+
+              {updates.length === 50 && (
+                <p className="mt-4 text-sm text-zinc-500">
+                  Showing the latest 50 updates.
+                </p>
+              )}
+            </>
           )}
         </section>
       </div>

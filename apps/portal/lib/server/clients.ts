@@ -90,6 +90,50 @@ export type ProjectDetail = z.infer<
 
 
 
+const projectUpdateSummarySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  authorUserId: z.string().nullable(),
+  publishedAt: z.string().datetime(),
+});
+
+const projectUpdatesSchema = z.array(
+  projectUpdateSummarySchema,
+);
+
+export type ProjectUpdateSummary = z.infer<
+  typeof projectUpdateSummarySchema
+>;
+
+
+
+
+
+
+
+const clientProjectUpdateSummarySchema =
+  projectUpdateSummarySchema.extend({
+    project: z.object({
+      id: z.string(),
+      name: z.string(),
+    }),
+  });
+
+const clientProjectUpdatesSchema = z.array(
+  clientProjectUpdateSummarySchema,
+);
+
+export type ClientProjectUpdateSummary = z.infer<
+  typeof clientProjectUpdateSummarySchema
+>;
+
+
+
+
+
+
+
 
 
 
@@ -226,3 +270,64 @@ export async function getVisibleProject(
 
 
 
+
+
+
+
+
+
+
+export async function getPublishedProjectUpdates(
+  token: string,
+  clientId: string,
+  projectId: string,
+): Promise<ProjectUpdateSummary[] | null> {
+  const response = await requestClients(
+    `/api/v1/clients/${encodeURIComponent(clientId)}/projects/${encodeURIComponent(projectId)}/updates`,
+    token,
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to load project updates: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const payload: unknown = await response.json();
+
+  return projectUpdatesSchema.parse(payload);
+}
+
+
+
+
+
+
+
+export async function getLatestClientProjectUpdates(
+  token: string,
+  clientId: string,
+): Promise<ClientProjectUpdateSummary[] | null> {
+  const response = await requestClients(
+    `/api/v1/clients/${encodeURIComponent(clientId)}/projects/updates`,
+    token,
+  );
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Unable to load client updates: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const payload: unknown = await response.json();
+
+  return clientProjectUpdatesSchema.parse(payload);
+}

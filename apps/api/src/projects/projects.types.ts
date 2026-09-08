@@ -23,3 +23,18 @@ export interface MilestoneSummary {
 export interface ProjectDetail extends ProjectSummary {
   milestones: MilestoneSummary[];
 }
+
+export interface ProjectUpdateSummary {
+  id: string;
+  title: string;
+  content: string;
+  authorUserId: string | null;
+  publishedAt: Date;
+}
+
+export interface ClientProjectUpdateSummary extends ProjectUpdateSummary {
+  project: {
+    id: string;
+    name: string;
+  };
+}

@@ -4,7 +4,12 @@ import type { DatabaseClient } from '@algoworld/database';
 
 import { ClientsService } from '../clients/clients.service';
 import { DATABASE_CLIENT } from '../database/database.constants';
-import type { ProjectDetail, ProjectSummary } from './projects.types';
+import type {
+  ProjectDetail,
+  ProjectSummary,
+  ProjectUpdateSummary,
+  ClientProjectUpdateSummary,
+} from './projects.types';
 
 @Injectable()
 export class ProjectsService {
@@ -91,5 +96,104 @@ export class ProjectsService {
     }
 
     return project;
+  }
+
+  async findPublishedUpdatesForClient(
+    clerkUserId: string,
+    clientId: string,
+    projectId: string,
+  ): Promise<ProjectUpdateSummary[]> {
+    await this.clientsService.findOneAccessibleTo(clerkUserId, clientId);
+
+    const now = new Date();
+
+    const project = await this.database.project.findFirst({
+      where: {
+        id: projectId,
+        clientId,
+        isVisibleToClient: true,
+      },
+      select: {
+        updates: {
+          where: {
+            publishedAt: {
+              not: null,
+              lte: now,
+            },
+          },
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            authorUserId: true,
+            publishedAt: true,
+          },
+          orderBy: [
+            {
+              publishedAt: 'desc',
+            },
+            {
+              id: 'desc',
+            },
+          ],
+          take: 50,
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    // Prisma retains the nullable database type despite the query filter.
+    return project.updates.flatMap(({ publishedAt, ...update }) =>
+      publishedAt === null ? [] : [{ ...update, publishedAt }],
+    );
+  }
+
+  async findLatestPublishedUpdatesForClient(
+    clerkUserId: string,
+    clientId: string,
+  ): Promise<ClientProjectUpdateSummary[]> {
+    await this.clientsService.findOneAccessibleTo(clerkUserId, clientId);
+
+    const updates = await this.database.projectUpdate.findMany({
+      where: {
+        project: {
+          clientId,
+          isVisibleToClient: true,
+        },
+        publishedAt: {
+          not: null,
+          lte: new Date(),
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        authorUserId: true,
+        publishedAt: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: [
+        {
+          publishedAt: 'desc',
+        },
+        {
+          id: 'desc',
+        },
+      ],
+      take: 5,
+    });
+
+    return updates.flatMap(({ publishedAt, ...update }) =>
+      publishedAt === null ? [] : [{ ...update, publishedAt }],
+    );
   }
 }
