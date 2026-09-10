@@ -43,8 +43,29 @@ describe('API health and authentication (e2e)', () => {
     ['project timelines', '/api/v1/clients/client-1/projects/project-1'],
     ['project updates', '/api/v1/clients/client-1/projects/project-1/updates'],
     ['client updates', '/api/v1/clients/client-1/projects/updates'],
+    ['admin session', '/api/v1/admin/session'],
+    ['admin clients', '/api/v1/admin/clients'],
+    ['admin client details', '/api/v1/admin/clients/client-1'],
   ])('rejects unauthenticated access to %s', async (_label, path) => {
     await request(server).get(path).expect(401);
+  });
+
+  it('rejects unauthenticated client creation', async () => {
+    await request(server)
+      .post('/api/v1/admin/clients')
+      .send({
+        name: 'Unauthorized test',
+        slug: 'unauthorized-test',
+        status: 'ACTIVE',
+      })
+      .expect(401);
+  });
+
+  it('rejects unauthenticated client updates', async () => {
+    await request(server)
+      .patch('/api/v1/admin/clients/client-1')
+      .send({ name: 'Unauthorized change' })
+      .expect(401);
   });
 });
 

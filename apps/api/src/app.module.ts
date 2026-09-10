@@ -4,6 +4,7 @@ import { HealthModule } from './health/health.module';
 import { ClientsModule } from './clients/clients.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { ProjectsModule } from './projects/projects.module';
+import { AdminModule } from './admin/admin.module';
 
 import { ConfigModule } from '@nestjs/config';
 
@@ -20,6 +21,7 @@ import { validateEnvironment } from './config/environment';
     ClientsModule,
     WebhooksModule,
     ProjectsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
