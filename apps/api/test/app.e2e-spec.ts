@@ -46,6 +46,11 @@ describe('API health and authentication (e2e)', () => {
     ['admin session', '/api/v1/admin/session'],
     ['admin clients', '/api/v1/admin/clients'],
     ['admin client details', '/api/v1/admin/clients/client-1'],
+    ['admin client memberships', '/api/v1/admin/clients/client-1/memberships'],
+    [
+      'admin available-user search',
+      '/api/v1/admin/clients/client-1/available-users?q=alex',
+    ],
   ])('rejects unauthenticated access to %s', async (_label, path) => {
     await request(server).get(path).expect(401);
   });
@@ -65,6 +70,26 @@ describe('API health and authentication (e2e)', () => {
     await request(server)
       .patch('/api/v1/admin/clients/client-1')
       .send({ name: 'Unauthorized change' })
+      .expect(401);
+  });
+
+  it('rejects unauthenticated membership creation', async () => {
+    await request(server)
+      .post('/api/v1/admin/clients/client-1/memberships')
+      .send({ userId: 'local-user-1', role: 'MEMBER' })
+      .expect(401);
+  });
+
+  it('rejects unauthenticated membership role changes', async () => {
+    await request(server)
+      .patch('/api/v1/admin/clients/client-1/memberships/local-user-1')
+      .send({ role: 'OWNER' })
+      .expect(401);
+  });
+
+  it('rejects unauthenticated membership removal', async () => {
+    await request(server)
+      .delete('/api/v1/admin/clients/client-1/memberships/local-user-1')
       .expect(401);
   });
 });
