@@ -10,6 +10,8 @@ import { AdminProjectsController } from './projects/admin-projects.controller';
 import { AdminProjectsService } from './projects/admin-projects.service';
 import { AdminMilestonesController } from './milestones/admin-milestones.controller';
 import { AdminMilestonesService } from './milestones/admin-milestones.service';
+import { AdminProjectUpdatesController } from './project-updates/admin-project-updates.controller';
+import { AdminProjectUpdatesService } from './project-updates/admin-project-updates.service';
 
 @Module({
   imports: [AuthModule, DatabaseModule],
@@ -17,6 +19,7 @@ import { AdminMilestonesService } from './milestones/admin-milestones.service';
     AdminController,
     AdminProjectsController,
     AdminMilestonesController,
+    AdminProjectUpdatesController,
   ],
   providers: [
     AdminAccessService,
@@ -24,6 +27,7 @@ import { AdminMilestonesService } from './milestones/admin-milestones.service';
     AdminMembershipsService,
     AdminProjectsService,
     AdminMilestonesService,
+    AdminProjectUpdatesService,
   ],
   exports: [AdminAccessService],
 })
