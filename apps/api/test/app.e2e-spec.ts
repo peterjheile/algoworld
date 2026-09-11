@@ -46,6 +46,11 @@ describe('API health and authentication (e2e)', () => {
     ['admin session', '/api/v1/admin/session'],
     ['admin clients', '/api/v1/admin/clients'],
     ['admin client details', '/api/v1/admin/clients/client-1'],
+    ['admin projects', '/api/v1/admin/clients/client-1/projects'],
+    [
+      'admin project details',
+      '/api/v1/admin/clients/client-1/projects/project-1',
+    ],
     ['admin client memberships', '/api/v1/admin/clients/client-1/memberships'],
     [
       'admin available-user search',
@@ -77,6 +82,28 @@ describe('API health and authentication (e2e)', () => {
     await request(server)
       .post('/api/v1/admin/clients/client-1/memberships')
       .send({ userId: 'local-user-1', role: 'MEMBER' })
+      .expect(401);
+  });
+
+  it('rejects unauthenticated project creation', async () => {
+    await request(server)
+      .post('/api/v1/admin/clients/client-1/projects')
+      .send({ name: 'Unauthorized project' })
+      .expect(401);
+  });
+
+  it('rejects unauthenticated project editing', async () => {
+    await request(server)
+      .put('/api/v1/admin/clients/client-1/projects/project-1')
+      .send({
+        name: 'Unauthorized project',
+        description: null,
+        status: 'PLANNING',
+        startDate: null,
+        targetEndDate: null,
+        completedAt: null,
+        isVisibleToClient: false,
+      })
       .expect(401);
   });
 
