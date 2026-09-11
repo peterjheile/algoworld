@@ -7,13 +7,13 @@ import {
 
 import { ClientRole, Prisma, type DatabaseClient } from '@algoworld/database';
 
-import type { AdminAccessService } from './admin-access.service';
+import type { AdminAccessService } from '../access/admin-access.service';
 import { AdminMembershipsService } from './admin-memberships.service';
 import type {
   AdminClientMembership,
   AdminMembershipUser,
 } from './admin-memberships.types';
-import type { AdminSession } from './admin.types';
+import type { AdminSession } from '../admin.types';
 
 describe('AdminMembershipsService', () => {
   const requireAdmin = jest.fn<Promise<AdminSession>, [clerkUserId: string]>();

@@ -15,13 +15,13 @@ import {
 
 import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
 import { CurrentClerkUserId } from '../auth/current-clerk-user-id.decorator';
-import { AdminAccessService } from './admin-access.service';
-import { AdminClientsService } from './admin-clients.service';
-import { AdminMembershipsService } from './admin-memberships.service';
+import { AdminAccessService } from './access/admin-access.service';
+import { AdminClientsService } from './clients/admin-clients.service';
+import { AdminMembershipsService } from './memberships/admin-memberships.service';
 import type {
   AdminClientMembership,
   AdminMembershipUser,
-} from './admin-memberships.types';
+} from './memberships/admin-memberships.types';
 import type {
   AdminClientDetail,
   AdminClientSummary,

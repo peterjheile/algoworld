@@ -8,8 +8,8 @@ import {
 
 import { Prisma, type DatabaseClient } from '@algoworld/database';
 
-import { DATABASE_CLIENT } from '../database/database.constants';
-import { AdminAccessService } from './admin-access.service';
+import { DATABASE_CLIENT } from '../../database/database.constants';
+import { AdminAccessService } from '../access/admin-access.service';
 import {
   createAdminMembershipSchema,
   updateAdminMembershipSchema,

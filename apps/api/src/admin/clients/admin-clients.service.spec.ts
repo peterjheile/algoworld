@@ -7,9 +7,9 @@ import {
 
 import { ClientStatus, Prisma, type DatabaseClient } from '@algoworld/database';
 
-import type { AdminAccessService } from './admin-access.service';
+import type { AdminAccessService } from '../access/admin-access.service';
 import { AdminClientsService } from './admin-clients.service';
-import type { AdminSession } from './admin.types';
+import type { AdminSession } from '../admin.types';
 
 interface ClientCountRow {
   id: string;

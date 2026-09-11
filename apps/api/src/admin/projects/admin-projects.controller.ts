@@ -8,8 +8,8 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
-import { CurrentClerkUserId } from '../auth/current-clerk-user-id.decorator';
+import { ClerkAuthGuard } from '../../auth/clerk-auth.guard';
+import { CurrentClerkUserId } from '../../auth/current-clerk-user-id.decorator';
 import { AdminProjectsService } from './admin-projects.service';
 import type { AdminProject } from './admin-projects.types';
 

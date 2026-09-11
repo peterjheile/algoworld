@@ -9,8 +9,8 @@ import {
   type DatabaseClient,
 } from '@algoworld/database';
 
-import type { AdminAccessService } from './admin-access.service';
-import type { AdminSession } from './admin.types';
+import type { AdminAccessService } from '../access/admin-access.service';
+import type { AdminSession } from '../admin.types';
 import { AdminProjectsService } from './admin-projects.service';
 import type { AdminProject } from './admin-projects.types';
 

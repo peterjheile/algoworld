@@ -2,8 +2,8 @@ import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 
 import { PlatformRole, type DatabaseClient } from '@algoworld/database';
 
-import { DATABASE_CLIENT } from '../database/database.constants';
-import type { AdminSession } from './admin.types';
+import { DATABASE_CLIENT } from '../../database/database.constants';
+import type { AdminSession } from '../admin.types';
 
 @Injectable()
 export class AdminAccessService {
